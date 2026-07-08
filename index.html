@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WatchHub</title>
+
+<style>
+:root{
+  --cream:#fff5d7;
+  --cream-light:#fffdf7;
+  --pink:#ff6fa8;
+  --pink-soft:#ffe5ef;
+  --pink-border:#ffd0e2;
+  --text:#2f2f35;
+  --muted:#777;
+  --shadow:0 18px 45px rgba(255,111,168,.16);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  background:var(--cream);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+.wrapper{
+  max-width:1600px;
+  margin:0 auto;
+  padding:28px 32px 34px;
+}
+.header{
+  display:grid;
+  grid-template-columns:220px minmax(520px,1fr) 300px 170px;
+  gap:34px;
+  align-items:center;
+  margin-bottom:30px;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  color:var(--pink);
+}
+.logo-icon{font-size:40px}
+.logo h1{
+  margin:0;
+  font-size:34px;
+  font-family:Georgia,serif;
+  font-style:italic;
+}
+.logo p{
+  margin:3px 0 0;
+  color:#6c6262;
+  font-size:13px;
+}
+.tabs{
+  background:rgba(255,255,255,.75);
+  border:1px solid var(--pink-border);
+  box-shadow:var(--shadow);
+  border-radius:22px;
+  padding:8px;
+  display:flex;
+  gap:6px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-left:24px;
+}
+.tab{
+  border:0;
+  background:transparent;
+  padding:13px 18px;
+  border-radius:16px;
+  font-weight:900;
+  color:#222;
+  cursor:pointer;
+}
+.tab.active{
+  background:var(--pink-soft);
+  color:var(--pink);
+}
+.search{
+  position:relative;
+}
+.search input{
+  width:100%;
+  border:1px solid var(--pink-border);
+  background:white;
+  box-shadow:var(--shadow);
+  padding:18px 52px 18px 22px;
+  border-radius:24px;
+  outline:none;
+  font-size:15px;
+}
+.search span{
+  position:absolute;
+  right:19px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:26px;
+  color:var(--pink);
+}
+.add-panel{
+  background:rgba(255,255,255,.76);
+  border:1px solid var(--pink-border);
+  box-shadow:var(--shadow);
+  border-radius:24px;
+  padding:14px;
+  display:grid;
+  grid-template-columns:1.2fr 1fr .9fr auto;
+  gap:10px;
+  margin-bottom:0;
+}
+.add-panel input,.add-panel select{
+  border:1px solid var(--pink-border);
+  background:white;
+  border-radius:16px;
+  padding:14px;
+  outline:none;
+}
+.add-panel button{
+  border:0;
+  background:var(--pink);
+  color:white;
+  border-radius:16px;
+  padding:0 24px;
+  font-weight:900;
+  cursor:pointer;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:18px;
+}
+.card{
+  position:relative;
+  height:300px;
+  border-radius:18px;
+  overflow:hidden;
+  background:#111;
+  box-shadow:0 16px 35px rgba(0,0,0,.14);
+  transition:.22s ease;
+}
+.card:hover{transform:translateY(-6px)}
+.poster,.placeholder{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.placeholder{
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#ffecf4,#fff);
+  color:var(--pink);
+  font-family:Georgia,serif;
+  font-size:20px;
+  font-weight:900;
+}
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 42%,rgba(0,0,0,.76) 100%);
+  pointer-events:none;
+}
+.status{
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:5;
+}
+.status-btn{
+  border:0;
+  background:rgba(255,255,255,.95);
+  color:#222;
+  border-radius:999px;
+  padding:10px 15px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.14);
+}
+.menu{
+  display:none;
+  margin-top:8px;
+  background:white;
+  border:1px solid var(--pink-border);
+  border-radius:16px;
+  padding:8px;
+  min-width:175px;
+  box-shadow:0 18px 36px rgba(0,0,0,.18);
+}
+.status.open .menu{display:block}
+.menu button{
+  width:100%;
+  border:0;
+  background:transparent;
+  padding:10px;
+  text-align:left;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+.menu button:hover,.menu button.selected{
+  background:var(--pink-soft);
+  color:var(--pink);
+}
+.fav{
+  position:absolute;
+  top:18px;
+  right:18px;
+  z-index:5;
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.95);
+  color:var(--pink);
+  font-size:20px;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.14);
+}
+
+.trash{
+  position:absolute;
+  top:60px;
+  right:14px;
+  z-index:5;
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.95);
+  color:var(--pink);
+  font-size:18px;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.14);
+}
+.trash:hover{
+  background:var(--pink-soft);
+  transform:scale(1.05);
+}
+
+.info{
+  position:absolute;
+  left:22px;
+  right:22px;
+  bottom:22px;
+  z-index:4;
+  color:white;
+}
+.info h2{
+  margin:0 0 9px;
+  font-size:20px;
+  line-height:1.05;
+  text-shadow:0 2px 10px rgba(0,0,0,.75);
+}
+
+
+
+.card:hover 
+
+
+.tmdb-panel{
+  background:transparent;
+  border:0;
+  box-shadow:none;
+  border-radius:0;
+  padding:0;
+  margin-bottom:28px;
+}
+.tmdb-title{
+  margin:0 0 10px;
+  color:var(--pink);
+  font-family:Georgia,serif;
+  font-size:24px;
+  font-style:italic;
+}
+.tmdb-search-row{
+  background:rgba(255,255,255,.76);
+  border:1px solid var(--pink-border);
+  box-shadow:var(--shadow);
+  border-radius:24px;
+  padding:14px;
+  display:grid;
+  grid-template-columns:1.2fr .9fr auto;
+  gap:10px;
+}
+.tmdb-search-row input,
+.tmdb-search-row select{
+  border:1px solid var(--pink-border);
+  background:white;
+  border-radius:16px;
+  padding:14px;
+  outline:none;
+}
+.tmdb-search-row button{
+  border:0;
+  background:var(--pink);
+  color:white;
+  border-radius:16px;
+  padding:0 24px;
+  font-weight:900;
+  cursor:pointer;
+}
+.tmdb-results{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(135px,1fr));
+  gap:14px;
+  margin-top:16px;
+}
+.tmdb-result{
+  border:1px solid var(--pink-border);
+  background:white;
+  border-radius:16px;
+  padding:9px;
+  cursor:pointer;
+  box-shadow:0 10px 20px rgba(255,111,168,.10);
+  transition:.18s ease;
+}
+.tmdb-result:hover{
+  transform:translateY(-4px);
+}
+.tmdb-result img,
+.tmdb-result .no-poster{
+  width:100%;
+  aspect-ratio:2/3;
+  object-fit:cover;
+  border-radius:12px;
+  background:linear-gradient(135deg,#ffecf4,#fff);
+  display:grid;
+  place-items:center;
+  color:var(--pink);
+  font-weight:900;
+  text-align:center;
+}
+.tmdb-result b{
+  display:block;
+  margin-top:8px;
+  font-size:13px;
+  line-height:1.15;
+}
+.tmdb-result small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+}
+.tmdb-loading{
+  grid-column:1/-1;
+  text-align:center;
+  background:white;
+  border:1px solid var(--pink-border);
+  border-radius:18px;
+  padding:18px;
+  color:var(--muted);
+  font-weight:800;
+}
+
+
+.poster,
+.placeholder{
+  cursor:pointer;
+}
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.58);
+  backdrop-filter:blur(5px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  z-index:100;
+}
+.modal-overlay.open{
+  display:flex;
+}
+.modal{
+  width:min(860px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:var(--cream-light);
+  border:1px solid var(--pink-border);
+  border-radius:28px;
+  box-shadow:0 30px 80px rgba(0,0,0,.28);
+  padding:20px;
+  position:relative;
+}
+.modal-close{
+  position:absolute;
+  top:18px;
+  right:18px;
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:50%;
+  background:var(--pink-soft);
+  color:var(--pink);
+  font-size:24px;
+  font-weight:900;
+  cursor:pointer;
+}
+.modal-content{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:22px;
+  align-items:start;
+}
+.modal-poster{
+  width:100%;
+  aspect-ratio:2/3;
+  object-fit:cover;
+  border-radius:22px;
+  background:linear-gradient(135deg,#ffecf4,#fff);
+  box-shadow:0 18px 35px rgba(255,111,168,.16);
+}
+.modal-placeholder{
+  width:100%;
+  aspect-ratio:2/3;
+  border-radius:22px;
+  background:linear-gradient(135deg,#ffecf4,#fff);
+  color:var(--pink);
+  display:grid;
+  place-items:center;
+  font-family:Georgia,serif;
+  font-weight:900;
+  font-size:26px;
+  box-shadow:0 18px 35px rgba(255,111,168,.16);
+}
+.modal-title{
+  margin:8px 48px 16px 0;
+  color:var(--pink);
+  font-family:Georgia,serif;
+  font-size:34px;
+  font-style:italic;
+  line-height:1.05;
+}
+.modal-label{
+  display:block;
+  margin:16px 0 8px;
+  color:#5e5555;
+  font-weight:900;
+}
+.modal-stars{
+  display:flex;
+  gap:4px;
+  font-size:34px;
+}
+.modal-stars button{
+  border:0;
+  background:transparent;
+  color:var(--pink);
+  font-size:34px;
+  padding:0;
+  cursor:pointer;
+  transition:.15s ease;
+}
+.modal-stars button:hover{
+  transform:scale(1.12);
+}
+.modal textarea{
+  width:100%;
+  min-height:150px;
+  border:1px solid var(--pink-border);
+  border-radius:18px;
+  padding:14px;
+  outline:none;
+  resize:vertical;
+  font-family:Arial,sans-serif;
+  font-size:15px;
+  background:white;
+}
+.modal-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+.modal-actions button,
+.modal-actions select{
+  border:1px solid var(--pink-border);
+  background:white;
+  border-radius:999px;
+  padding:12px 16px;
+  font-weight:900;
+  cursor:pointer;
+}
+.modal-actions button{
+  color:var(--pink);
+}
+.modal-actions .modal-delete{
+  background:var(--pink-soft);
+  color:var(--pink);
+}
+.modal-actions select{
+  color:#2f2f35;
+  outline:none;
+}
+.modal-hint{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:13px;
+}
+@media(max-width:750px){
+  .modal-content{
+    grid-template-columns:1fr;
+  }
+  .modal-poster,
+  .modal-placeholder{
+    max-width:260px;
+    margin:0 auto;
+  }
+  .modal-title{
+    font-size:28px;
+  }
+}
+
+.stats{
+  margin-top:28px;
+  background:rgba(255,255,255,.72);
+  border:1px solid var(--pink-border);
+  box-shadow:var(--shadow);
+  border-radius:22px;
+  padding:18px 24px;
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:10px;
+}
+.stat{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  justify-content:center;
+  border-right:1px solid var(--pink-border);
+}
+.stat:last-child{border-right:0}
+.stat .icon{
+  font-size:34px;
+  color:var(--pink);
+}
+.stat small{
+  display:block;
+  color:#555;
+  font-weight:800;
+}
+.stat b{font-size:26px}
+.empty{
+  grid-column:1/-1;
+  text-align:center;
+  background:white;
+  border:1px solid var(--pink-border);
+  border-radius:22px;
+  padding:50px;
+  color:var(--muted);
+}
+@media(max-width:1100px){
+  .header{grid-template-columns:1fr}
+  .tabs{margin-left:0}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat{border-right:0}
+}
+@media(max-width:650px){
+  .wrapper{padding:18px}
+  .grid{grid-template-columns:1fr}
+  .card{height:420px}
+  .add-panel{grid-template-columns:1fr}
+  .tmdb-search-row{grid-template-columns:1fr}
+  .tabs{justify-content:flex-start}
+  .tab{padding:11px 13px}
+}
+
+.view-toggle{
+  border:1px solid var(--pink-border);
+  background:white;
+  color:var(--pink);
+  box-shadow:var(--shadow);
+  padding:16px 18px;
+  border-radius:24px;
+  outline:none;
+  font-size:14px;
+  font-weight:900;
+  cursor:pointer;
+  transition:.18s ease;
+  white-space:nowrap;
+}
+.view-toggle:hover{
+  background:var(--pink-soft);
+  transform:translateY(-2px);
+}
+
+.grid.view-large{
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+}
+.grid.view-large .card{
+  height:300px;
+}
+
+.grid.view-medium{
+  grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+}
+.grid.view-medium .card{
+  height:245px;
+}
+.grid.view-medium .info{
+  left:18px;
+  right:18px;
+  bottom:18px;
+}
+.grid.view-medium .info h2{
+  font-size:18px;
+}
+
+.grid.view-compact{
+  grid-template-columns:repeat(auto-fill,minmax(125px,1fr));
+  gap:14px;
+}
+.grid.view-compact .card{
+  height:200px;
+  border-radius:15px;
+}
+.grid.view-compact .info{
+  left:13px;
+  right:13px;
+  bottom:13px;
+}
+.grid.view-compact .info h2{
+  font-size:15px;
+  line-height:1.05;
+  margin-bottom:0;
+}
+
+@media(max-width:650px){
+  .view-toggle{
+    width:100%;
+  }
+
+  .grid.view-large{
+    grid-template-columns:1fr;
+  }
+  .grid.view-large .card{
+    height:420px;
+  }
+
+  .grid.view-medium{
+    grid-template-columns:repeat(2,1fr);
+  }
+  .grid.view-medium .card{
+    height:260px;
+  }
+
+  .grid.view-compact{
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+  }
+  .grid.view-compact .card{
+    height:185px;
+  }
+  .grid.view-compact .info{
+    left:9px;
+    right:9px;
+    bottom:9px;
+  }
+  .grid.view-compact .info h2{
+    font-size:12px;
+  }
+}
+
+.watermark{
+  text-align:center;
+  margin:30px 0 10px;
+  color:#9b8b8b;
+  font-size:14px;
+  font-style:italic;
+  opacity:.8;
+  letter-spacing:.5px;
+}
+.watermark span{
+  color:var(--pink);
+  font-weight:700;
+}
+
+
+/* Hauptseite cleaner machen: Status, Herz und Löschen nur noch im Popup */
+.card > .status,
+.card > .fav,
+.card > .trash{
+  display:none;
+}
+
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">🎬</div>
+      <div>
+        <h1>WatchHub ♡</h1>
+        <p>Shows & Movies Tracker ✨</p>
+      </div>
+    </div>
+
+    <nav class="tabs" id="tabs"></nav>
+
+    <div class="search">
+      <input id="search" placeholder="Suche nach Filmen oder Serien...">
+      <span>⌕</span>
+    </div>
+
+    <button class="view-toggle" id="viewToggle" type="button">
+      🖼️ Große Poster
+    </button>
+  </header>
+
+  <section class="tmdb-panel">
+    <h2 class="tmdb-title">Manuelle Suche ✨</h2>
+    <section class="add-panel">
+    <input id="title" placeholder="Titel">
+    <input id="poster" type="file" accept="image/*">
+    <select id="status">
+      <option>Watchlist</option>
+      <option>Watching</option>
+      <option>Watched</option>
+      <option>On Hold</option>
+      <option>Dropped</option>
+    </select>
+    <button id="addBtn">Hinzufügen</button>
+  </section>
+  </section>
+
+
+  <section class="tmdb-panel">
+    <h2 class="tmdb-title">Online Suche ✨</h2>
+    <div class="tmdb-search-row">
+      <input id="tmdbQuery" placeholder="Tippe einen Film oder eine Serie ein...">
+      <select id="tmdbStatus">
+        <option>Watchlist</option>
+        <option>Watching</option>
+        <option>Watched</option>
+        <option>On Hold</option>
+        <option>Dropped</option>
+      </select>
+      <button id="tmdbSearchBtn" type="button">Suchen</button>
+    </div>
+    <div class="tmdb-results" id="tmdbResults"></div>
+  </section>
+
+  <main class="grid" id="grid"></main>
+
+  <footer class="stats">
+    <div class="stat"><div class="icon">▦</div><div><small>Insgesamt</small><b id="sTotal">0</b> Titel</div></div>
+    <div class="stat"><div class="icon">✓</div><div><small>Geschaut</small><b id="sWatched">0</b></div></div>
+    <div class="stat"><div class="icon">▷</div><div><small>Schaue gerade</small><b id="sWatching">0</b></div></div>
+    <div class="stat"><div class="icon">◴</div><div><small>Auf der Liste</small><b id="sWatchlist">0</b></div></div>
+    <div class="stat"><div class="icon">Ⅱ</div><div><small>Pausiert</small><b id="sHold">0</b></div></div>
+    <div class="stat"><div class="icon">×</div><div><small>Abgebrochen</small><b id="sDropped">0</b></div></div>
+    <div class="stat"><div class="icon">♡</div><div><small>Favoriten</small><b id="sFavs">0</b></div></div>
+  </footer>
+</div>
+
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <button class="modal-close" id="modalClose" type="button">×</button>
+    <div class="modal-content">
+      <div id="modalPosterBox"></div>
+      <div>
+        <h2 class="modal-title" id="modalTitle"></h2>
+
+        <label class="modal-label">Deine Sternebewertung</label>
+        <div class="modal-stars" id="modalStars"></div>
+
+        <label class="modal-label" for="modalReview">Deine Textbewertung</label>
+        <textarea id="modalReview" placeholder="Schreib hier deine Bewertung..."></textarea>
+
+        <div class="modal-actions">
+          <button type="button" id="modalFavBtn">♡ Favorit</button>
+          <select id="modalStatus"></select>
+          <button type="button" id="modalDeleteBtn" class="modal-delete">🗑️ Löschen</button>
+        </div>
+
+        <p class="modal-hint">Alles wird automatisch gespeichert ✨</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const statuses = ["All","Watchlist","Watching","Watched","On Hold","Dropped","<3 Favs"];
+const realStatuses = ["Watchlist","Watching","Watched","On Hold","Dropped"];
+const icons = {
+  "All":"▦",
+  "Watchlist":"◴",
+  "Watching":"▷",
+  "Watched":"☑",
+  "On Hold":"Ⅱ",
+  "Dropped":"⊗",
+  "<3 Favs":"♡"
+};
+
+let filter = "All";
+let items = JSON.parse(localStorage.getItem("watchhub_fixed_v1")) || [];
+items = items.map(item => ({
+  rating:0,
+  review:"",
+  fav:false,
+  ...item
+}));
+
+const grid = document.getElementById("grid");
+const viewToggle = document.getElementById("viewToggle");
+const tabs = document.getElementById("tabs");
+const searchInput = document.getElementById("search");
+const addBtn = document.getElementById("addBtn");
+const tmdbQuery = document.getElementById("tmdbQuery");
+const tmdbStatus = document.getElementById("tmdbStatus");
+const tmdbSearchBtn = document.getElementById("tmdbSearchBtn");
+const tmdbResults = document.getElementById("tmdbResults");
+
+const detailModal = document.getElementById("detailModal");
+const modalClose = document.getElementById("modalClose");
+const modalPosterBox = document.getElementById("modalPosterBox");
+const modalTitle = document.getElementById("modalTitle");
+const modalStars = document.getElementById("modalStars");
+const modalReview = document.getElementById("modalReview");
+const modalFavBtn = document.getElementById("modalFavBtn");
+const modalStatus = document.getElementById("modalStatus");
+const modalDeleteBtn = document.getElementById("modalDeleteBtn");
+let activeModalItemId = null;
+
+const posterViews = [
+  { key:"large", label:"🖼️ Große Poster" },
+  { key:"medium", label:"🗂️ Mittlere Poster" },
+  { key:"compact", label:"🔲 Kleine Poster" }
+];
+
+let posterView = localStorage.getItem("watchhub_poster_view") || "large";
+if(!posterViews.some(view => view.key === posterView)){
+  posterView = "large";
+}
+
+// Hier deinen kostenlosen TMDb API-Key eintragen:
+const TMDB_API_KEY = "19bbdcdf4285a210ff3d34b55e36425e";
+let tmdbLastSearchId = 0;
+
+addBtn.addEventListener("click", addItem);
+searchInput.addEventListener("input", render);
+let tmdbSearchTimer;
+
+tmdbSearchBtn.addEventListener("click", searchTMDb);
+
+viewToggle.addEventListener("click", () => {
+  const currentIndex = posterViews.findIndex(view => view.key === posterView);
+  const nextIndex = (currentIndex + 1) % posterViews.length;
+
+  posterView = posterViews[nextIndex].key;
+  localStorage.setItem("watchhub_poster_view", posterView);
+  updatePosterView();
+});
+
+tmdbQuery.addEventListener("input", () => {
+  clearTimeout(tmdbSearchTimer);
+
+  const query = tmdbQuery.value.trim();
+
+  if(query.length < 2){
+    tmdbResults.innerHTML = "";
+    return;
+  }
+
+  tmdbSearchTimer = setTimeout(() => {
+    searchTMDb();
+  }, 450);
+});
+
+tmdbQuery.addEventListener("keydown", (event) => {
+  if(event.key === "Enter"){
+    event.preventDefault();
+    clearTimeout(tmdbSearchTimer);
+    searchTMDb();
+  }
+});
+
+modalClose.addEventListener("click", closeModal);
+detailModal.addEventListener("click", (event) => {
+  if(event.target === detailModal){
+    closeModal();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if(event.key === "Escape" && detailModal.classList.contains("open")){
+    closeModal();
+  }
+});
+
+modalReview.addEventListener("input", () => {
+  const item = findItem(activeModalItemId);
+  if(item){
+    item.review = modalReview.value;
+    saveOnly();
+  }
+});
+
+modalFavBtn.addEventListener("click", () => {
+  const item = findItem(activeModalItemId);
+  if(item){
+    item.fav = !item.fav;
+    saveOnly();
+    updateModal();
+    render();
+  }
+});
+
+modalStatus.addEventListener("change", () => {
+  const item = findItem(activeModalItemId);
+  if(item){
+    item.status = modalStatus.value;
+    saveOnly();
+    updateModal();
+    render();
+  }
+});
+
+modalDeleteBtn.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const item = findItem(activeModalItemId);
+
+  if(!item) return;
+
+  if(confirm("Diesen Titel wirklich löschen?")){
+    items = items.filter(entry => String(entry.id) !== String(item.id));
+    closeModal();
+    save();
+  }
+});
+
+
+function updatePosterView(){
+  posterViews.forEach(view => {
+    grid.classList.remove(`view-${view.key}`);
+  });
+
+  grid.classList.add(`view-${posterView}`);
+
+  const currentView = posterViews.find(view => view.key === posterView);
+  viewToggle.textContent = currentView.label;
+}
+
+
+function save(){
+  localStorage.setItem("watchhub_fixed_v1", JSON.stringify(items));
+  render();
+}
+
+function saveOnly(){
+  localStorage.setItem("watchhub_fixed_v1", JSON.stringify(items));
+}
+
+function addItem(){
+  const title = document.getElementById("title").value.trim();
+  const file = document.getElementById("poster").files[0];
+  const status = document.getElementById("status").value;
+
+  if(!title){
+    alert("Bitte einen Titel eingeben.");
+    return;
+  }
+
+  const create = (image) => {
+    items.unshift({
+      id: Date.now(),
+      title,
+      image,
+      status,
+      fav:false,
+      rating:0,
+      review:""
+    });
+
+    document.getElementById("title").value = "";
+    document.getElementById("poster").value = "";
+    save();
+  };
+
+  if(file){
+    const reader = new FileReader();
+    reader.onload = (event) => create(event.target.result);
+    reader.readAsDataURL(file);
+  } else {
+    create("");
+  }
+}
+
+
+async function searchTMDb(){
+  const query = tmdbQuery.value.trim();
+
+  if(!query || query.length < 2){
+    tmdbResults.innerHTML = "";
+    return;
+  }
+
+  if(!TMDB_API_KEY || TMDB_API_KEY === "DEIN_TMDB_API_KEY_HIER"){
+    alert("Bitte trage zuerst deinen TMDb API-Key im Code ein.");
+    return;
+  }
+
+  tmdbResults.innerHTML = '<div class="tmdb-loading">Suche läuft... 🌸</div>';
+
+  const searchId = ++tmdbLastSearchId;
+
+  try{
+    const url = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&language=de-DE&query=${encodeURIComponent(query)}&include_adult=false`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if(searchId !== tmdbLastSearchId) return;
+
+    const results = (data.results || [])
+      .filter(result => result.media_type === "movie" || result.media_type === "tv")
+      .slice(0, 12);
+
+    if(results.length === 0){
+      tmdbResults.innerHTML = '<div class="empty">Keine Ergebnisse gefunden 🌸</div>';
+      return;
+    }
+
+    tmdbResults.innerHTML = results.map(result => {
+      const title = result.title || result.name || "Ohne Titel";
+      const date = result.release_date || result.first_air_date || "";
+      const year = date ? date.slice(0,4) : "Unbekannt";
+      const type = result.media_type === "movie" ? "Film" : "Serie";
+      const poster = result.poster_path
+        ? `https://image.tmdb.org/t/p/w500${result.poster_path}`
+        : "";
+
+      return `
+        <article class="tmdb-result"
+          data-title="${escapeHTML(title)}"
+          data-image="${poster}"
+          data-type="${type}">
+          ${poster ? `<img src="${poster}" alt="">` : `<div class="no-poster">Kein Poster</div>`}
+          <b>${escapeHTML(title)}</b>
+          <small>${type} · ${year}</small>
+        </article>
+      `;
+    }).join("");
+
+  } catch(error){
+    tmdbResults.innerHTML = '<div class="empty">Da ist etwas schiefgelaufen. Prüfe deinen API-Key oder deine Internetverbindung.</div>';
+  }
+}
+
+function addTMDbItem(card){
+  const title = card.dataset.title;
+  const image = card.dataset.image || "";
+  const status = tmdbStatus.value;
+
+  items.unshift({
+    id: Date.now(),
+    title,
+    image,
+    status,
+    fav:false,
+    rating:0,
+    review:""
+  });
+
+  tmdbQuery.value = "";
+  tmdbResults.innerHTML = "";
+  save();
+}
+
+
+
+function openModal(id){
+  activeModalItemId = id;
+  updateModal();
+  detailModal.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal(){
+  detailModal.classList.remove("open");
+  document.body.style.overflow = "";
+  activeModalItemId = null;
+}
+
+function updateModal(){
+  const item = findItem(activeModalItemId);
+  if(!item) return;
+
+  modalTitle.textContent = item.title;
+
+  modalPosterBox.innerHTML = item.image
+    ? `<img class="modal-poster" src="${item.image}" alt="">`
+    : `<div class="modal-placeholder">WatchHub</div>`;
+
+  modalStars.innerHTML = [1,2,3,4,5].map(star => `
+    <button type="button" data-modal-rating="${star}">
+      ${star <= item.rating ? "★" : "☆"}
+    </button>
+  `).join("");
+
+  modalReview.value = item.review || "";
+  modalFavBtn.textContent = item.fav ? "❤️ Favorit" : "♡ Favorit";
+
+  modalStatus.innerHTML = realStatuses.map(status => `
+    <option value="${status}" ${item.status === status ? "selected" : ""}>
+      ${icons[status]} ${status}
+    </option>
+  `).join("");
+}
+
+
+function count(status){
+  if(status === "All") return items.length;
+  if(status === "<3 Favs") return items.filter(item => item.fav).length;
+  return items.filter(item => item.status === status).length;
+}
+
+function renderTabs(){
+  tabs.innerHTML = "";
+
+  statuses.forEach(status => {
+    const btn = document.createElement("button");
+    btn.className = "tab" + (filter === status ? " active" : "");
+    btn.type = "button";
+    btn.textContent = `${icons[status]} ${status}`;
+    btn.addEventListener("click", () => {
+      filter = status;
+      render();
+    });
+    tabs.appendChild(btn);
+  });
+}
+
+function updateStats(){
+  document.getElementById("sTotal").textContent = items.length;
+  document.getElementById("sWatched").textContent = count("Watched");
+  document.getElementById("sWatching").textContent = count("Watching");
+  document.getElementById("sWatchlist").textContent = count("Watchlist");
+  document.getElementById("sHold").textContent = count("On Hold");
+  document.getElementById("sDropped").textContent = count("Dropped");
+  document.getElementById("sFavs").textContent = count("<3 Favs");
+}
+
+function visibleItems(){
+  const query = searchInput.value.toLowerCase();
+
+  return items
+    .filter(item => filter === "All" || (filter === "<3 Favs" ? item.fav : item.status === filter))
+    .filter(item => item.title.toLowerCase().includes(query));
+}
+
+function render(){
+  renderTabs();
+  updateStats();
+  grid.innerHTML = "";
+
+  const shown = visibleItems();
+
+  if(shown.length === 0){
+    grid.innerHTML = '<div class="empty">Noch keine Titel gefunden 🌸</div>';
+    return;
+  }
+
+  shown.forEach(item => {
+    const card = document.createElement("article");
+    card.className = "card";
+
+    const poster = item.image
+      ? `<img class="poster" src="${item.image}" alt="" data-action="open-modal" data-id="${item.id}">`
+      : `<div class="placeholder" data-action="open-modal" data-id="${item.id}">WatchHub</div>`;
+
+    const menuButtons = realStatuses.map(status => `
+      <button type="button" class="${item.status === status ? "selected" : ""}" data-action="status" data-id="${item.id}" data-status="${status}">
+        ${icons[status]} ${status}
+      </button>
+    `).join("");
+
+    card.innerHTML = `
+      <div class="status">
+        <button type="button" class="status-btn" data-action="menu">${icons[item.status]} ${item.status}</button>
+        <div class="menu">${menuButtons}</div>
+      </div>
+
+      <button type="button" class="fav" data-action="fav" data-id="${item.id}">
+        ${item.fav ? "❤️" : "♡"}
+      </button>
+
+      <button type="button" class="trash" data-action="delete" data-id="${item.id}" title="Titel löschen">
+        🗑️
+      </button>
+
+      ${poster}
+
+      <div class="info">
+        <h2>${escapeHTML(item.title)}</h2>
+      </div>
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
+function findItem(id){
+  return items.find(item => String(item.id) === String(id));
+}
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  const action = target.dataset.action;
+
+  const tmdbCard = target.closest(".tmdb-result");
+  if(tmdbCard){
+    addTMDbItem(tmdbCard);
+    return;
+  }
+
+  if(target.dataset.modalRating){
+    const item = findItem(activeModalItemId);
+    if(item){
+      item.rating = Number(target.dataset.modalRating);
+      saveOnly();
+      updateModal();
+      render();
+    }
+    return;
+  }
+
+  if(action !== "menu"){
+    document.querySelectorAll(".status.open").forEach(el => el.classList.remove("open"));
+  }
+
+  if(action === "open-modal"){
+    openModal(target.dataset.id);
+    return;
+  }
+
+  if(action === "menu"){
+    event.stopPropagation();
+    const statusBox = target.closest(".status");
+    document.querySelectorAll(".status.open").forEach(el => {
+      if(el !== statusBox) el.classList.remove("open");
+    });
+    statusBox.classList.toggle("open");
+    return;
+  }
+
+  if(action === "fav"){
+    const item = findItem(target.dataset.id);
+    if(item){
+      item.fav = !item.fav;
+      save();
+    }
+    return;
+  }
+
+  if(action === "status"){
+    const item = findItem(target.dataset.id);
+    if(item){
+      item.status = target.dataset.status;
+      save();
+    }
+    return;
+  }
+
+  if(action === "delete"){
+    const id = target.dataset.id;
+    if(confirm("Diesen Titel wirklich löschen?")){
+      items = items.filter(item => String(item.id) !== String(id));
+      save();
+    }
+    return;
+  }
+});
+
+
+
+function escapeHTML(text){
+  return String(text)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+updatePosterView();
+render();
+</script>
+
+  <div class="watermark">
+    by <span>「 ✦ Eneas-Ian ✦ 」</span>
+  </div>
+
+</body>
+</html>
